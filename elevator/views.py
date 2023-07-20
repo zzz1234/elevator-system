@@ -91,3 +91,25 @@ class InitializeElevatorSystem(APIView):
         """Fetch all the instances of elevator"""
         data = utils.fetch_all_objects(models.Elevator, self.elevator_serializer)
         return data
+
+
+class GetElevatorStatus(APIView):
+    """API for fetching the status of an elevator"""
+    def get(self, request, id=None):
+        """Returns the status of the elevator"""
+        if id is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={'message': 'Please pass elevator_id in url. Eg: <url>/<id>'})
+        
+        elevator = models.Elevator.objects.filter(elevator_id=id).select_related('status_id')
+        elevator_status = elevator.values_list('elevator_id', 'status_id__status')
+        formatted_data = self.format_data(elevator_status)
+        return Response(status=200, data= formatted_data)
+    
+    
+    def format_data(self, elevator_status):
+        """Formats data according to the output format"""
+        data = {}
+        data['elevator_id'] = elevator_status[0][0]
+        data['status'] = elevator_status[0][1]        
+        return data
+        

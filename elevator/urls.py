@@ -9,5 +9,6 @@ urlpatterns = [
     path('status/<int:pk>', view=views.StatusDetail.as_view()),
     path('elevator', view=views.ElevatorList.as_view(), name='elevator-view'),
     path('elevator/<int:pk>', view=views.ElevatorDetail.as_view()),
-    path('initialize_system', view=views.InitializeElevatorSystem.as_view())
+    path('initialize_system', view=views.InitializeElevatorSystem.as_view()),
+    path('elevator/get_status/<int:id>', view=views.GetElevatorStatus.as_view())
 ]
