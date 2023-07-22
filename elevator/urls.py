@@ -9,6 +9,12 @@ urlpatterns = [
     path('status/<int:pk>', view=views.StatusDetail.as_view()),
     path('elevator', view=views.ElevatorList.as_view(), name='elevator-view'),
     path('elevator/<int:pk>', view=views.ElevatorDetail.as_view()),
+    path('request', view=views.RequestList.as_view()),
+    path('request/<int:pk>', view=views.RequestDetail.as_view()),
     path('initialize_system', view=views.InitializeElevatorSystem.as_view()),
-    path('elevator/get_status/<int:id>', view=views.GetElevatorStatus.as_view())
+    path('elevator/get_status/<int:id>', view=views.GetElevatorStatus.as_view()),
+    path('elevator/opendoor/<int:id>', view=views.OpenElevatorDoor.as_view()),
+    path('elevator/closedoor/<int:id>', view=views.CloseElevatorDoor.as_view()),
+    path('elevator/non_operational/<int:id>', view=views.MarkElevatorNotOperational.as_view()),
+    path('elevator/operational/<int:id>', view=views.MarkElevatorOperational.as_view()),
 ]

@@ -22,3 +22,11 @@ class ElevatorSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Elevator
         fields = '__all__'
+
+
+class RequestSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = models.Request
+        fields = '__all__'
+        
