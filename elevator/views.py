@@ -143,14 +143,13 @@ class CloseElevatorDoor(APIView):
             return Response(status=response.status_code, data={'message': 'Unable to close the Elevator Door'})
         # Update all the pending requests for the elevator as completed.
         pending_requests = utils.get_pending_requests(self.request_model, self.request_serializer, id)
-        print(pending_requests)
         self.update_pending_requests_as_completed(pending_requests)
         return Response(status=status.HTTP_200_OK, data={'message': 'door is closed'})
     
 
     def update_pending_requests_as_completed(self, pending_requests):
         for pending_request in pending_requests:
-            elevator_data = {'last_stop': pending_request['destination_floor_id']}
+            elevator_data = {'current_stop': pending_request['destination_floor_id']}
             utils.partially_update(self.elevator_model, self.elevator_serializer, pending_request['source_elevator_id'], elevator_data)
             request_data = {'is_completed': True}
             utils.partially_update(self.request_model, self.request_serializer, pending_request['request_id'], request_data)
@@ -162,14 +161,15 @@ class RequestElevator(APIView):
     elevator_model = models.Elevator
     request_model = models.Request
     request_serializer = serializers.RequestSerializer
+
     def post(self, request, floor_id):
         nearest_elevator = self.find_nearest_elevator(floor_id)
         # Do a request POST nearest_elevator_current_floor to floor_id.
         response_code, request_data = self.add_request(nearest_elevator, floor_id, False)
         if response_code != 200:
             return Response(status=response_code, data={'message': 'Request to elevator failed'})
-        # Change the last_stop
-        response_code = self.update_last_stop_and_open_door(nearest_elevator, floor_id).status_code
+        # Change the current_stop
+        response_code = self.update_current_stop_and_open_door(nearest_elevator, floor_id).status_code
         if response_code != 200:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={'message': 'Door not opening'})
         # Update the request as completed
@@ -179,14 +179,15 @@ class RequestElevator(APIView):
         # Change this function to find the most optimal elevator
         elevators = self.elevator_model.objects.filter(is_operational=True, is_door_open=False)
         serializer = self.elevator_serializer(elevators, many=True)
-        return serializer.data[0]['elevator_id']
+        nearest_elevator = utils.find_nearest_elevator(serializer.data, floor_id)
+        return nearest_elevator
     
     def add_request(self, elevator_id, floor_id, is_completed):
         data = [{"source_elevator_id": elevator_id, "destination_floor_id": floor_id, "is_completed": is_completed}]
         return utils.insert_data(self.request_serializer, data)
     
-    def update_last_stop_and_open_door(self, nearest_elevator, floor_id):
-        data = {'last_stop': floor_id, 'is_door_open': True}
+    def update_current_stop_and_open_door(self, nearest_elevator, floor_id):
+        data = {'current_stop': floor_id, 'is_door_open': True}
         return utils.partially_update(self.elevator_model, self.elevator_serializer, nearest_elevator, data)
     
     def update_request_as_completed(self, data):
@@ -247,12 +248,12 @@ class FetchNextDestination(APIView):
     request_model = models.Request
     request_serializer = serializers.RequestSerializer
 
+    elevator_model = models.Elevator
+    elevator_serializer = serializers.ElevatorSerializer
+
     def get(self, request, elevator_id):
-        pending_requests = utils.get_pending_requests(self.request_model, self.request_serializer, elevator_id)    
-        floor_id = self.find_most_optimal_next_destination(pending_requests)
+        pending_requests = utils.get_pending_requests(self.request_model, self.request_serializer, elevator_id)
+        current_floor = utils.get_current_floor_for_elevator(self.elevator_model, self.elevator_serializer, elevator_id)
+        floor_id = utils.find_most_optimal_next_destination(pending_requests, current_floor)
         return Response(status=status.HTTP_200_OK, data={'next_destination_floor_id': floor_id})
-    
-    def find_most_optimal_next_destination(self, pending_requests):
-        # Need to update the logic to find the most optimal next destination
-        return pending_requests[0]['destination_floor_id']
     

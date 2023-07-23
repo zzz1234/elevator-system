@@ -20,7 +20,7 @@ class Elevator(models.Model):
     elevator_id = models.IntegerField(primary_key=True)
     status = models.ForeignKey(Status, on_delete=models.CASCADE)
     is_operational = models.BooleanField(blank=False)
-    last_stop = models.ForeignKey(Floor, on_delete=models.CASCADE)
+    current_stop = models.ForeignKey(Floor, on_delete=models.CASCADE)
     is_door_open = models.BooleanField() # 0 if the door is closed, 1 if it is open.
 
 
