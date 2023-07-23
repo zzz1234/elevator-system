@@ -18,5 +18,7 @@ urlpatterns = [
     path('elevator/non_operational/<int:id>', view=views.MarkElevatorNotOperational.as_view()),
     path('elevator/operational/<int:id>', view=views.MarkElevatorOperational.as_view()),
     path('request_elevator/<int:floor_id>', view=views.RequestElevator.as_view()),
-    path('elevator/requests/<int:id>', view=views.ElevatorRequests.as_view())
+    path('elevator/requests/<int:id>', view=views.ElevatorRequests.as_view()),
+    path('elevator/<int:elevator_id>/floor/<int:floor_id>', view=views.RequestFloor.as_view()),
+    path('elevator/next_destination/<int:elevator_id>', view=views.FetchNextDestination.as_view())
 ]

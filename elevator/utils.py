@@ -46,3 +46,9 @@ def insert_data(serializer, data):
         return 200, serializer.data
     else:
         return 500, None
+
+
+def get_pending_requests(request_model, request_serializer, id):
+    requests = request_model.objects.filter(source_elevator_id=id, is_completed=False)
+    serializer = request_serializer(requests, many=True)  
+    return serializer.data  

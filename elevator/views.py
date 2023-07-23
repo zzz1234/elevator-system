@@ -128,12 +128,33 @@ class OpenElevatorDoor(APIView):
 
 class CloseElevatorDoor(APIView):
     """API to close the elevator door"""
+
+    request_model = models.Request
+    request_serializer = serializers.RequestSerializer
+    elevator_model = models.Elevator
+    elevator_serializer = serializers.ElevatorSerializer
+
     def post(self, request, id=None):
         serializer = serializers.ElevatorSerializer
         model = models.Elevator
         data = {'is_door_open': False}
-        return utils.partially_update(model, serializer, id, data)
+        response = utils.partially_update(model, serializer, id, data)
+        if response.status_code != 200:
+            return Response(status=response.status_code, data={'message': 'Unable to close the Elevator Door'})
+        # Update all the pending requests for the elevator as completed.
+        pending_requests = utils.get_pending_requests(self.request_model, self.request_serializer, id)
+        print(pending_requests)
+        self.update_pending_requests_as_completed(pending_requests)
+        return Response(status=status.HTTP_200_OK, data={'message': 'door is closed'})
     
+
+    def update_pending_requests_as_completed(self, pending_requests):
+        for pending_request in pending_requests:
+            elevator_data = {'last_stop': pending_request['destination_floor_id']}
+            utils.partially_update(self.elevator_model, self.elevator_serializer, pending_request['source_elevator_id'], elevator_data)
+            request_data = {'is_completed': True}
+            utils.partially_update(self.request_model, self.request_serializer, pending_request['request_id'], request_data)
+
 
 class RequestElevator(APIView):
     """API for requesting an elevator from a Floor"""
@@ -205,3 +226,33 @@ class ElevatorRequests(APIView):
             requests = requests.filter(is_completed=is_completed)
         serializer = self.request_serializer(requests, many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+
+class RequestFloor(APIView):
+    """This API requests the floor from inside the elevator"""
+
+    request_serializer = serializers.RequestSerializer
+
+    def post(self, request, elevator_id, floor_id):
+        data = [{'source_elevator_id': elevator_id, 'destination_floor_id': floor_id, 'is_completed': False}]
+        response_code, data = utils.insert_data(self.request_serializer, data)
+        if response_code != 200:
+            return Response(status=response_code, data={'message': 'Unable to complete the request'})
+        return Response(status=status.HTTP_200_OK, data={'data': f'Floor {floor_id} is requested'})
+
+
+class FetchNextDestination(APIView):
+    """API to fetch next destination for an Elevator"""
+
+    request_model = models.Request
+    request_serializer = serializers.RequestSerializer
+
+    def get(self, request, elevator_id):
+        pending_requests = utils.get_pending_requests(self.request_model, self.request_serializer, elevator_id)    
+        floor_id = self.find_most_optimal_next_destination(pending_requests)
+        return Response(status=status.HTTP_200_OK, data={'next_destination_floor_id': floor_id})
+    
+    def find_most_optimal_next_destination(self, pending_requests):
+        # Need to update the logic to find the most optimal next destination
+        return pending_requests[0]['destination_floor_id']
+    
