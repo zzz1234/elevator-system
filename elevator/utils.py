@@ -21,12 +21,8 @@ def fetch_all_objects(model, serializer):
 
 def create_elevators(elevators, serializer):
     complete_data = [{'elevator_id': i, 'status': 3, 'is_operational': True, 'last_stop': 1, 'is_door_open': False} for i in range(1, elevators + 1)]
-    elevator_serializer = serializer(data=complete_data, many=True)
-    if elevator_serializer.is_valid():
-        elevator_serializer.save()
-        return 200
-    else:
-        return 500
+    status_code, data = insert_data(serializer, complete_data)
+    return status_code
 
 
 def partially_update(model, serializer_class, id, data):
@@ -41,3 +37,12 @@ def partially_update(model, serializer_class, id, data):
         serializer.save()
         return Response(status=status.HTTP_200_OK, data={"data": serializer.data})
     return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={'message': 'Request failed'})
+
+
+def insert_data(serializer, data):
+    serializer = serializer(data=data, many=True)
+    if serializer.is_valid():
+        serializer.save()
+        return 200, serializer.data
+    else:
+        return 500, None

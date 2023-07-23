@@ -27,6 +27,6 @@ class Elevator(models.Model):
 class Request(models.Model):
     """To store all the requests for elevator"""
     request_id = models.AutoField(primary_key=True)
-    source_elevator_id = models.ForeignKey(Elevator, on_delete = models.CASCADE, related_name='source_elevator_id')
-    destination_elevator_id = models.ForeignKey(Elevator, on_delete=models.CASCADE, related_name='destination_elevator_id')
+    source_elevator_id = models.ForeignKey(Elevator, on_delete = models.CASCADE)
+    destination_floor_id = models.ForeignKey(Floor, on_delete=models.CASCADE)
     is_completed = models.BooleanField() # 1 if the request is completed, 0 if it is not.
