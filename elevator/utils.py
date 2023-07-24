@@ -22,7 +22,7 @@ def fetch_all_objects(model, serializer):
 def create_elevators(elevators, serializer):
     complete_data = [{'elevator_id': i, 'status': 3, 'is_operational': True, 'current_stop': 1, 'is_door_open': False} for i in range(1, elevators + 1)]
     status_code, data = insert_data(serializer, complete_data)
-    return status_code
+    return status_code, data
 
 
 def partially_update(model, serializer_class, id, data):
@@ -86,3 +86,7 @@ def find_most_optimal_next_destination(pending_requests, current_floor):
             min_diff = diff
             next_destination = request['destination_floor_id']
     return next_destination
+
+
+def get_elevator_operation_status(elevator_model, id):
+    return elevator_model.objects.filter(pk=id).values()[0]['is_operational']
