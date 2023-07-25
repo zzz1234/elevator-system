@@ -1,0 +1,62 @@
+[
+    {
+        "model": "elevator.elevator",
+        "pk": 1,
+        "fields": {
+            "status": 3,
+            "is_operational": true,
+            "current_stop": 1,
+            "is_door_open": false
+        }
+    },
+    {
+        "model": "elevator.elevator",
+        "pk": 2,
+        "fields": {
+            "status": 3,
+            "is_operational": true,
+            "current_stop": 1,
+            "is_door_open": false
+        }
+    },
+    {
+        "model": "elevator.elevator",
+        "pk": 3,
+        "fields": {
+            "status": 3,
+            "is_operational": true,
+            "current_stop": 1,
+            "is_door_open": false
+        }
+    },
+    {
+        "model": "elevator.elevator",
+        "pk": 4,
+        "fields": {
+            "status": 3,
+            "is_operational": true,
+            "current_stop": 1,
+            "is_door_open": false
+        }
+    },
+    {
+        "model": "elevator.elevator",
+        "pk": 5,
+        "fields": {
+            "status": 3,
+            "is_operational": true,
+            "current_stop": 1,
+            "is_door_open": false
+        }
+    },
+    {
+        "model": "elevator.elevator",
+        "pk": 6,
+        "fields": {
+            "status": 3,
+            "is_operational": true,
+            "current_stop": 1,
+            "is_door_open": false
+        }
+    }
+]

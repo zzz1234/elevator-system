@@ -1,3 +1,5 @@
+import logging
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics
@@ -69,17 +71,21 @@ class InitializeElevatorSystem(APIView):
     def post(self, request):
 
         # Remove exisiting elevators as we are going to start a new system
+        logging.info("Cleaning up system. Deleting all elevators before creating them")
         self.delete_all_elevators()
-        elevators = request.data.get('elevators')
+        elevators = int(request.data.get('elevators'))
         if not elevators:
+            logging.error("Error: Number of elevators not passed in the request!!!")
             return Response(status=status.HTTP_400_BAD_REQUEST, data={'message': 'Pass elevators as param'})
 
         #Initialize the system with number of elevators provided in the request.
         response_code, data = utils.create_elevators(elevators, self.elevator_serializer)
 
         if response_code != 200:
+            logging.error(f"Unable to initialize the system. Got return code {response_code}")
             return Response(status=response_code, data={'message': 'Unable to initialize the system'})
         
+        logging.info("System initialized successfully.")
         return Response(status=status.HTTP_200_OK, data=data)
         
 
@@ -233,6 +239,10 @@ class RequestFloor(APIView):
     request_serializer = serializers.RequestSerializer
 
     def post(self, request, elevator_id, floor_id):
+        model = models.Elevator
+        is_operational = utils.get_elevator_operation_status(model, elevator_id)
+        if not is_operational:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={'message': f'The elevator {elevator_id} is not operational.'})
         data = [{'source_elevator_id': elevator_id, 'destination_floor_id': floor_id, 'is_completed': False}]
         response_code, data = utils.insert_data(self.request_serializer, data)
         if response_code != 200:

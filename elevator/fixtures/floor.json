@@ -1,0 +1,42 @@
+[
+    {
+        "model": "elevator.floor",
+        "pk": 1,
+        "fields": {
+            "floor_no": 1,
+            "is_requested": false
+        }
+    },
+    {
+        "model": "elevator.floor",
+        "pk": 2,
+        "fields": {
+            "floor_no": 2,
+            "is_requested": false
+        }
+    },
+    {
+        "model": "elevator.floor",
+        "pk": 3,
+        "fields": {
+            "floor_no": 3,
+            "is_requested": false
+        }
+    },
+    {
+        "model": "elevator.floor",
+        "pk": 4,
+        "fields": {
+            "floor_no": 4,
+            "is_requested": false
+        }
+    },
+    {
+        "model": "elevator.floor",
+        "pk": 5,
+        "fields": {
+            "floor_no": 5,
+            "is_requested": false
+        }
+    }
+]

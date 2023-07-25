@@ -1,0 +1,1 @@
+[{"model": "elevator.status", "pk": 1, "fields": {"status": "up"}}, {"model": "elevator.status", "pk": 2, "fields": {"status": "down"}}, {"model": "elevator.status", "pk": 3, "fields": {"status": "stop"}}]
