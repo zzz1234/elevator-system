@@ -99,15 +99,17 @@ class GetElevatorStatus(APIView):
     def get(self, request, id=None):
         """Returns the status of the elevator"""
         if id is None:
+            logging.error("Request failed!! Incorrect URL. Elevator_id not passed.")
             return Response(status=status.HTTP_400_BAD_REQUEST, data={'message': 'Please pass elevator_id in url. Eg: <url>/<id>'})
         
         elevator = models.Elevator.objects.filter(elevator_id=id).select_related('status_id')
         elevator_status = elevator.values_list('elevator_id', 'status_id__status')
         formatted_data = self.format_data(elevator_status)
+        logging.info("Request successful")
         return Response(status=200, data= formatted_data)
     
     
-    def format_data(self, elevator_status):
+    def format_data(self, elevator_status: list) -> dict:
         """Formats data according to the output format"""
         data = {}
         data['elevator_id'] = elevator_status[0][0]
@@ -120,8 +122,10 @@ class OpenElevatorDoor(APIView):
     def post(self, request, id=None):
         serializer = serializers.ElevatorSerializer
         model = models.Elevator
+        logging.info("Checking if elevator is operational or not.")
         is_operational = utils.get_elevator_operation_status(model, id)
         if not is_operational:
+            logging.error("The elevator is not operational. Request failed!!")
             return Response(status=status.HTTP_400_BAD_REQUEST, data={'message': f'The elevator {id} is not operational.'})
         data = {'is_door_open': True}
         return utils.partially_update(model, serializer, id, data)
@@ -136,20 +140,26 @@ class CloseElevatorDoor(APIView):
     elevator_serializer = serializers.ElevatorSerializer
 
     def post(self, request, id=None):
+        logging.info("Checking if elevator is operational or not.")
         is_operational = utils.get_elevator_operation_status(self.elevator_model, id)
         if not is_operational:
+            logging.error("The elevator is not operational. Request failed!!")
             return Response(status=status.HTTP_400_BAD_REQUEST, data={'message': f'The elevator {id} is not operational.'})
         data = {'is_door_open': False}
+        logging.info("Closing the elevator door.")
         response = utils.partially_update(self.elevator_model, self.elevator_serializer, id, data)
         if response.status_code != 200:
+            logging.error("Error occured while closing the gate. Request failed!!")
             return Response(status=response.status_code, data={'message': 'Unable to close the Elevator Door'})
         # Update all the pending requests for the elevator as completed.
+        logging.info("Updating all the pending requests for the elevator as door is now closed.")
         pending_requests = utils.get_pending_requests(self.request_model, self.request_serializer, id)
         self.update_pending_requests_as_completed(pending_requests)
+        logging.info("Request successful!!")
         return Response(status=status.HTTP_200_OK, data={'message': 'door is closed'})
     
 
-    def update_pending_requests_as_completed(self, pending_requests):
+    def update_pending_requests_as_completed(self, pending_requests: list) -> None:
         for pending_request in pending_requests:
             # Update the elevator current stop with destination floor
             elevator_data = {'current_stop': pending_request['destination_floor_id']}
@@ -167,10 +177,13 @@ class RequestElevator(APIView):
     request_serializer = serializers.RequestSerializer
 
     def post(self, request, floor_id):
+        logging.info("Request received. Finding the nearest Elevator")
         nearest_elevator = self.find_nearest_elevator(floor_id)
+        logging.info(f"Elevator Found!! Elevator_id: {nearest_elevator}")
         # Do a request POST nearest_elevator_current_floor to floor_id.
         response_code, request_data = self.add_request(nearest_elevator, floor_id, False)
         if response_code != 200:
+            logging.error("Request failed!!")
             return Response(status=response_code, data={'message': 'Request to elevator failed'})
         # Change the current_stop 
         response_code = self.update_current_stop_and_open_door(nearest_elevator, floor_id).status_code
@@ -179,22 +192,21 @@ class RequestElevator(APIView):
         # Update the request as completed
         return self.update_request_as_completed(request_data)
 
-    def find_nearest_elevator(self, floor_id):
-        # Change this function to find the most optimal elevator
+    def find_nearest_elevator(self, floor_id: int) -> int:
         elevators = self.elevator_model.objects.filter(is_operational=True, is_door_open=False)
         serializer = self.elevator_serializer(elevators, many=True)
         nearest_elevator = utils.find_nearest_elevator(serializer.data, floor_id)
         return nearest_elevator
     
-    def add_request(self, elevator_id, floor_id, is_completed):
+    def add_request(self, elevator_id: int, floor_id: int, is_completed: bool) -> tuple[int, dict]:
         data = [{"source_elevator_id": elevator_id, "destination_floor_id": floor_id, "is_completed": is_completed}]
         return utils.insert_data(self.request_serializer, data)
     
-    def update_current_stop_and_open_door(self, nearest_elevator, floor_id):
+    def update_current_stop_and_open_door(self, nearest_elevator: int, floor_id: int) -> Response:
         data = {'current_stop': floor_id, 'is_door_open': True}
         return utils.partially_update(self.elevator_model, self.elevator_serializer, nearest_elevator, data)
     
-    def update_request_as_completed(self, data):
+    def update_request_as_completed(self, data: dict) -> Response:
         request_id = data[0]['request_id']
         request_data = {"is_completed": True}
         return utils.partially_update(self.request_model, self.request_serializer, request_id, request_data)
@@ -224,12 +236,15 @@ class ElevatorRequests(APIView):
     request_serializer = serializers.RequestSerializer
 
     def get(self, request, id=None):
+        logging.info("Fetching paramters completed if passed.")
         is_completed = request.query_params.get('completed')
+        logging.info(f"Params. is_completed: {is_completed}")
 
         requests = self.request_model.objects.filter(source_elevator_id=id)
         if is_completed:
             requests = requests.filter(is_completed=is_completed)
         serializer = self.request_serializer(requests, many=True)
+        logging.info("Request successful")
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
 
@@ -240,13 +255,18 @@ class RequestFloor(APIView):
 
     def post(self, request, elevator_id, floor_id):
         model = models.Elevator
+        # Checking if the elevator is operational or not
+        logging.info("Checking if the elevator is operational or not")
         is_operational = utils.get_elevator_operation_status(model, elevator_id)
         if not is_operational:
+            logging.error("Elevator is not operation. Request failed!!")
             return Response(status=status.HTTP_400_BAD_REQUEST, data={'message': f'The elevator {elevator_id} is not operational.'})
         data = [{'source_elevator_id': elevator_id, 'destination_floor_id': floor_id, 'is_completed': False}]
         response_code, data = utils.insert_data(self.request_serializer, data)
         if response_code != 200:
+            logging.error("Unable to complete the request")
             return Response(status=response_code, data={'message': 'Unable to complete the request'})
+        logging.info("Request successful!!")
         return Response(status=status.HTTP_200_OK, data={'data': f'Floor {floor_id} is requested'})
 
 
@@ -261,10 +281,14 @@ class FetchNextDestination(APIView):
 
     def get(self, request, elevator_id):
         # Get all the pending requests for the elevator
+        logging.info("Fetching all the pending requests for the elevator")
         pending_requests = utils.get_pending_requests(self.request_model, self.request_serializer, elevator_id)
         # Get the floor_id for floor at which elevator is currently present
+        logging.info("Fetching the floor_id for floor at which elevator is currently present")
         current_floor = utils.get_current_floor_for_elevator(self.elevator_model, self.elevator_serializer, elevator_id)
         # Find the nearest destination floor from the current floor of the elevator.
+        logging.info("Fetching the nearest destination floor from the current floor of the elevator.")
         floor_id = utils.find_most_optimal_next_destination(pending_requests, current_floor)
+        logging.info("Request successful!!")
         return Response(status=status.HTTP_200_OK, data={'next_destination_floor_id': floor_id})
     
