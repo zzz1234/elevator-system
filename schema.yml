@@ -1,0 +1,938 @@
+openapi: 3.0.3
+info:
+  title: Django DRF Elevator System
+  version: 0.0.0
+paths:
+  /api/elevator:
+    get:
+      operationId: api_elevator_list
+      description: List all elevators and creates new elevator
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Elevator'
+          description: ''
+    post:
+      operationId: api_elevator_create
+      description: List all elevators and creates new elevator
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Elevator'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Elevator'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Elevator'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Elevator'
+          description: ''
+  /api/elevator/{elevator_id}/floor/{floor_id}:
+    post:
+      operationId: api_elevator_floor_create
+      description: This API requests the floor from inside the elevator
+      parameters:
+      - in: path
+        name: elevator_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: floor_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/elevator/{elevator_id}:
+    get:
+      operationId: api_elevator_retrieve
+      description: Responsible for updating, retrieve or delete a elevator
+      parameters:
+      - in: path
+        name: elevator_id
+        schema:
+          type: integer
+        description: A unique value identifying this elevator.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Elevator'
+          description: ''
+    put:
+      operationId: api_elevator_update
+      description: Responsible for updating, retrieve or delete a elevator
+      parameters:
+      - in: path
+        name: elevator_id
+        schema:
+          type: integer
+        description: A unique value identifying this elevator.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Elevator'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Elevator'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Elevator'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Elevator'
+          description: ''
+    patch:
+      operationId: api_elevator_partial_update
+      description: Responsible for updating, retrieve or delete a elevator
+      parameters:
+      - in: path
+        name: elevator_id
+        schema:
+          type: integer
+        description: A unique value identifying this elevator.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedElevator'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedElevator'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedElevator'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Elevator'
+          description: ''
+    delete:
+      operationId: api_elevator_destroy
+      description: Responsible for updating, retrieve or delete a elevator
+      parameters:
+      - in: path
+        name: elevator_id
+        schema:
+          type: integer
+        description: A unique value identifying this elevator.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/elevator/closedoor/{id}:
+    post:
+      operationId: api_elevator_closedoor_create
+      description: API to close the elevator door
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/elevator/get_status/{id}:
+    get:
+      operationId: api_elevator_get_status_retrieve
+      description: Returns the status of the elevator
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/elevator/next_destination/{elevator_id}:
+    get:
+      operationId: api_elevator_next_destination_retrieve
+      description: API to fetch next destination for an Elevator
+      parameters:
+      - in: path
+        name: elevator_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/elevator/non_operational/{id}:
+    post:
+      operationId: api_elevator_non_operational_create
+      description: API to mark the elevator as non-operational
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/elevator/opendoor/{id}:
+    post:
+      operationId: api_elevator_opendoor_create
+      description: API to open the elevator door
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/elevator/operational/{id}:
+    post:
+      operationId: api_elevator_operational_create
+      description: API to mark the elevator as operational
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/elevator/requests/{id}:
+    get:
+      operationId: api_elevator_requests_retrieve
+      description: Fetches all the request for an elevator
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/floor:
+    get:
+      operationId: api_floor_list
+      description: List all floors and creates floor
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Floor'
+          description: ''
+    post:
+      operationId: api_floor_create
+      description: List all floors and creates floor
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Floor'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Floor'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Floor'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Floor'
+          description: ''
+  /api/floor/{id}:
+    get:
+      operationId: api_floor_retrieve
+      description: Responsible for updating, retrieve or delete a floor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Floor'
+          description: ''
+    put:
+      operationId: api_floor_update
+      description: Responsible for updating, retrieve or delete a floor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Floor'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Floor'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Floor'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Floor'
+          description: ''
+    patch:
+      operationId: api_floor_partial_update
+      description: Responsible for updating, retrieve or delete a floor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedFloor'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedFloor'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedFloor'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Floor'
+          description: ''
+    delete:
+      operationId: api_floor_destroy
+      description: Responsible for updating, retrieve or delete a floor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/initialize_system:
+    post:
+      operationId: api_initialize_system_create
+      description: Initializes the Elevators with new Elevators
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/request:
+    get:
+      operationId: api_request_list
+      description: Lists all request and creates new request
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Request'
+          description: ''
+    post:
+      operationId: api_request_create
+      description: Lists all request and creates new request
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Request'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Request'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Request'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+          description: ''
+  /api/request/{request_id}:
+    get:
+      operationId: api_request_retrieve
+      description: Responsible for updating, retrieve or delete a request
+      parameters:
+      - in: path
+        name: request_id
+        schema:
+          type: integer
+        description: A unique integer value identifying this request.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+          description: ''
+    put:
+      operationId: api_request_update
+      description: Responsible for updating, retrieve or delete a request
+      parameters:
+      - in: path
+        name: request_id
+        schema:
+          type: integer
+        description: A unique integer value identifying this request.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Request'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Request'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Request'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+          description: ''
+    patch:
+      operationId: api_request_partial_update
+      description: Responsible for updating, retrieve or delete a request
+      parameters:
+      - in: path
+        name: request_id
+        schema:
+          type: integer
+        description: A unique integer value identifying this request.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRequest'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+          description: ''
+    delete:
+      operationId: api_request_destroy
+      description: Responsible for updating, retrieve or delete a request
+      parameters:
+      - in: path
+        name: request_id
+        schema:
+          type: integer
+        description: A unique integer value identifying this request.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/request_elevator/{floor_id}:
+    post:
+      operationId: api_request_elevator_create
+      description: API for requesting an elevator from a Floor
+      parameters:
+      - in: path
+        name: floor_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/status:
+    get:
+      operationId: api_status_list
+      description: List all statuses and creates new Status
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Status'
+          description: ''
+    post:
+      operationId: api_status_create
+      description: List all statuses and creates new Status
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Status'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Status'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Status'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: ''
+  /api/status/{id}:
+    get:
+      operationId: api_status_retrieve
+      description: Responsible for updating, retrieve or delete a status
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: ''
+    put:
+      operationId: api_status_update
+      description: Responsible for updating, retrieve or delete a status
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Status'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Status'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Status'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: ''
+    patch:
+      operationId: api_status_partial_update
+      description: Responsible for updating, retrieve or delete a status
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedStatus'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedStatus'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedStatus'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: ''
+    delete:
+      operationId: api_status_destroy
+      description: Responsible for updating, retrieve or delete a status
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+components:
+  schemas:
+    Elevator:
+      type: object
+      properties:
+        elevator_id:
+          type: integer
+        is_operational:
+          type: boolean
+        is_door_open:
+          type: boolean
+        status:
+          type: integer
+        current_stop:
+          type: integer
+      required:
+      - current_stop
+      - elevator_id
+      - is_door_open
+      - is_operational
+      - status
+    Floor:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        floor_no:
+          type: integer
+        is_requested:
+          type: boolean
+      required:
+      - floor_no
+      - id
+      - is_requested
+    PatchedElevator:
+      type: object
+      properties:
+        elevator_id:
+          type: integer
+        is_operational:
+          type: boolean
+        is_door_open:
+          type: boolean
+        status:
+          type: integer
+        current_stop:
+          type: integer
+    PatchedFloor:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        floor_no:
+          type: integer
+        is_requested:
+          type: boolean
+    PatchedRequest:
+      type: object
+      properties:
+        request_id:
+          type: integer
+          readOnly: true
+        is_completed:
+          type: boolean
+        source_elevator_id:
+          type: integer
+        destination_floor_id:
+          type: integer
+    PatchedStatus:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        status:
+          type: string
+          maxLength: 30
+    Request:
+      type: object
+      properties:
+        request_id:
+          type: integer
+          readOnly: true
+        is_completed:
+          type: boolean
+        source_elevator_id:
+          type: integer
+        destination_floor_id:
+          type: integer
+      required:
+      - destination_floor_id
+      - is_completed
+      - request_id
+      - source_elevator_id
+    Status:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        status:
+          type: string
+          maxLength: 30
+      required:
+      - id
+      - status
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
