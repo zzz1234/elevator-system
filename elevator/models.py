@@ -16,7 +16,7 @@ class Floor(models.Model):
 
 
 class Elevator(models.Model):
-    """To define Elevator and its attributes"""
+    """To define Elevator and its attributess"""
     elevator_id = models.IntegerField(primary_key=True)
     status = models.ForeignKey(Status, on_delete=models.CASCADE)
     is_operational = models.BooleanField(blank=False)
